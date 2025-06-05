@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facility Recommendations - Patient Placement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #334155;
+        }
+
+        /* Patient Profile Card - Fixed Top Right */
+        .patient-profile {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            z-index: 1000;
+            min-width: 280px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .profile-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .profile-info p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .profile-details {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            font-size: 12px;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-right: 320px;
+            padding: 20px;
+            max-width: 1200px;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .assessment-summary {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .summary-tag {
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-tag.primary {
+            background: #ddd6fe;
+            color: #6b46c1;
+            border-color: #c4b5fd;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* Facility Cards */
+        .facilities-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .facility-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .facility-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .facility-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .facility-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .facility-location {
+            font-size: 14px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+        }
+
+        .facility-location::before {
+            content: "📍";
+            margin-right: 6px;
+        }
+
+        /* Compatibility Score */
+        .compatibility-score {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin: 0 auto 8px;
+            position: relative;
+        }
+
+        .score-excellent {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+
+        .score-good {
+            background: linear-gradient(135deg, #0891b2, #06b6d4);
+        }
+
+        .score-fair {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+
+        .score-poor {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Facility Details */
+        .facility-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .detail-list {
+            list-style: none;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .detail-list li {
+            margin-bottom: 4px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .detail-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        /* Availability Status */
+        .availability-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-available {
+            background: #10b981;
+        }
+
+        .status-soon {
+            background: #f59e0b;
+        }
+
+        .status-waitlist {
+            background: #ef4444;
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .beds-info {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* Match Reasons */
+        .match-reasons {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f0fdf4;
+            border-radius: 12px;
+            border-left: 4px solid #10b981;
+        }
+
+        .match-reasons h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 8px;
+        }
+
+        .reason-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .reason-tag {
+            padding: 4px 8px;
+            background: #bbf7d0;
+            color: #166534;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .facility-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-right: 0;
+                padding-top: 180px;
+            }
+            
+            .patient-profile {
+                position: fixed;
+                top: 0;
+                right: 0;
+                left: 0;
+                border-radius: 0 0 16px 16px;
+            }
+            
+            .facility-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .facility-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .compatibility-score {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Patient Profile Card -->
+    <div class="patient-profile">
+        <div class="profile-header">
+            <div class="profile-avatar">JS</div>
+            <div class="profile-info">
+                <h3>John Smith</h3>
+                <p>PAT-2025-001</p>
+            </div>
+        </div>
+        <div class="profile-details">
+            <div class="profile-row">
+                <span>Age:</span>
+                <span>45</span>
+            </div>
+            <div class="profile-row">
+                <span>Gender:</span>
+                <span>Male</span>
+            </div>
+            <div class="profile-row">
+                <span>Status:</span>
+                <span style="color: #10b981;">Assessment Complete</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Facility Recommendations</h1>
+            <p class="page-subtitle">Best matched rehabilitation facilities based on patient assessment</p>
+            <div class="assessment-summary">
+                <span class="summary-tag primary">Major Depressive Disorder</span>
+                <span class="summary-tag">Moderate Support Needed</span>
+                <span class="summary-tag">Medication Management</span>
+                <span class="summary-tag">Family Support Available</span>
+                <span class="summary-tag">Voluntary Admission</span>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="availability-filter">Availability</label>
+                    <select id="availability-filter">
+                        <option value="all">All Facilities</option>
+                        <option value="immediate">Immediate Availability</option>
+                        <option value="soon">Within 1 Week</option>
+                        <option value="waitlist">Accept Waitlist</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="distance-filter">Distance</label>
+                    <select id="distance-filter">
+                        <option value="all">Any Distance</option>
+                        <option value="10">Within 10 miles</option>
+                        <option value="25">Within 25 miles</option>
+                        <option value="50">Within 50 miles</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="compatibility-filter">Min. Compatibility</label>
+                    <select id="compatibility-filter">
+                        <option value="0">Any Match</option>
+                        <option value="70">70%+</option>
+                        <option value="80">80%+</option>
+                        <option value="90">90%+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="insurance-filter">Insurance</label>
+                    <select id="insurance-filter">
+                        <option value="all">All Accepted</option>
+                        <option value="medicare">Medicare</option>
+                        <option value="medicaid">Medicaid</option>
+                        <option value="private">Private Insurance</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facility Cards -->
+        <div class="facilities-container" id="facilitiesContainer">
+            <!-- Facilities will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const facilities = [
+            {
+                id: 1,
+                name: "Serenity Springs Recovery Center",
+                location: "Downtown Medical District, 3.2 miles",
+                compatibility: 94,
+                availability: "immediate",
+                beds: "2 beds available",
+                specializations: ["Major Depression", "Anxiety Disorders", "Medication Management", "Individual Therapy"],
+                amenities: ["24/7 Nursing", "Family Therapy", "Recreational Therapy", "Nutritional Counseling"],
+                matchReasons: ["Depression Specialty", "Medication Focus", "Family Integration", "Male Programs"],
+                insurance: ["Medicare", "Medicaid", "Private"],
+                phone: "(555) 123-4567",
+                estimatedStay: "30-45 days"
+            },
+            {
+                id: 2,
+                name: "Harmony Hills Behavioral Health",
+                location: "Northside District, 7.8 miles",
+                compatibility: 89,
+                availability: "soon",
+                beds: "Expected opening in 3 days",
+                specializations: ["Mood Disorders", "Dual Diagnosis", "CBT Programs", "Psychiatric Care"],
+                amenities: ["Medical Detox", "Group Therapy", "Occupational Therapy", "Peer Support"],
+                matchReasons: ["Mood Disorder Focus", "CBT Approach", "Peer Support", "Medical Integration"],
+                insurance: ["Medicare", "Private", "Blue Cross"],
+                phone: "(555) 234-5678",
+                estimatedStay: "21-35 days"
+            },
+            {
+                id: 3,
+                name: "Riverside Psychiatric Rehabilitation",
+                location: "East Valley, 12.4 miles",
+                compatibility: 87,
+                availability: "immediate",
+                beds: "1 bed available",
+                specializations: ["Long-term Care", "Medication Stabilization", "Life Skills", "Vocational Training"],
+                amenities: ["Extended Care", "Job Training", "Independent Living Prep", "Case Management"],
+                matchReasons: ["Long-term Focus", "Life Skills", "Independence Training", "Case Management"],
+                insurance: ["Medicaid", "State Funded", "Private"],
+                phone: "(555) 345-6789",
+                estimatedStay: "45-90 days"
+            },
+            {
+                id: 4,
+                name: "Willow Creek Mental Health Institute",
+                location: "Suburban West, 18.7 miles",
+                compatibility: 82,
+                availability: "soon",
+                beds: "Opening in 5-7 days",
+                specializations: ["Depression Treatment", "Anxiety Management", "Family Therapy", "Holistic Care"],
+                amenities: ["Art Therapy", "Music Therapy", "Garden Therapy", "Meditation Programs"],
+                matchReasons: ["Holistic Approach", "Family Involvement", "Depression Focus", "Creative Therapies"],
+                insurance: ["Private", "Medicare", "United Health"],
+                phone: "(555) 456-7890",
+                estimatedStay: "28-42 days"
+            },
+            {
+                id: 5,
+                name: "Phoenix Rising Treatment Center",
+                location: "South Metro, 22.1 miles",
+                compatibility: 76,
+                availability: "waitlist",
+                beds: "Waitlist: ~2 weeks",
+                specializations: ["Trauma-Informed Care", "PTSD Treatment", "Depression", "Anxiety"],
+                amenities: ["EMDR Therapy", "Yoga Classes", "Mindfulness Training", "Pet Therapy"],
+                matchReasons: ["Trauma-Informed", "Mindfulness Focus", "Depression Treatment", "Comprehensive Care"],
+                insurance: ["Medicare", "Medicaid", "Aetna", "Cigna"],
+                phone: "(555) 567-8901",
+                estimatedStay: "35-60 days"
+            }
+        ];
+
+        function getCompatibilityClass(score) {
+            if (score >= 90) return 'score-excellent';
+            if (score >= 80) return 'score-good';
+            if (score >= 70) return 'score-fair';
+            return 'score-poor';
+        }
+
+        function getCompatibilityLabel(score) {
+            if (score >= 90) return 'Excellent Match';
+            if (score >= 80) return 'Good Match';
+            if (score >= 70) return 'Fair Match';
+            return 'Limited Match';
+        }
+
+        function getAvailabilityStatus(availability, beds) {
+            switch(availability) {
+                case 'immediate':
+                    return `<div class="status-dot status-available"></div>
+                            <div>
+                                <div class="status-text">Available Now</div>
+                                <div class="beds-info">${beds}</div>
+                            </div>`;
+                case 'soon':
+                    return `<div class="status-dot status-soon"></div>
+                            <div>
+                                <div class="status-text">Available Soon</div>
+                                <div class="beds-info">${beds}</div>
+                            </div>`;
+                case 'waitlist':
+                    return `<div class="status-dot status-waitlist"></div>
+                            <div>
+                                <div class="status-text">Waitlist Available</div>
+                                <div class="beds-info">${beds}</div>
+                            </div>`;
+            }
+        }
+
+        function createFacilityCard(facility) {
+            return `
+                <div class="facility-card" data-compatibility="${facility.compatibility}" data-availability="${facility.availability}">
+                    <div class="facility-header">
+                        <div class="facility-info">
+                            <h3>${facility.name}</h3>
+                            <div class="facility-location">${facility.location}</div>
+                        </div>
+                        <div class="compatibility-score">
+                            <div class="score-circle ${getCompatibilityClass(facility.compatibility)}">
+                                ${facility.compatibility}%
+                            </div>
+                            <div class="score-label">${getCompatibilityLabel(facility.compatibility)}</div>
+                        </div>
+                    </div>
+
+                    <div class="availability-status">
+                        <div class="status-info">
+                            ${getAvailabilityStatus(facility.availability, facility.beds)}
+                        </div>
+                        <div class="beds-info">Est. Stay: ${facility.estimatedStay}</div>
+                    </div>
+
+                    <div class="facility-details">
+                        <div class="detail-section">
+                            <h4>Specializations</h4>
+                            <ul class="detail-list">
+                                ${facility.specializations.map(spec => `<li>${spec}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="detail-section">
+                            <h4>Amenities & Services</h4>
+                            <ul class="detail-list">
+                                ${facility.amenities.map(amenity => `<li>${amenity}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="match-reasons">
+                        <h4>Why This Facility Matches</h4>
+                        <div class="reason-tags">
+                            ${facility.matchReasons.map(reason => `<span class="reason-tag">${reason}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="facility-actions">
+                        <button class="btn btn-primary" onclick="initiateReferral(${facility.id})">
+                            📋 Initiate Referral
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewDetails(${facility.id})">
+                            📞 Contact: ${facility.phone}
+                        </button>
+                        <button class="btn btn-secondary" onclick="saveForLater(${facility.id})">
+                            ⭐ Save for Later
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFacilities(facilitiesToRender = facilities) {
+            const container = document.getElementById('facilitiesContainer');
+            container.innerHTML = facilitiesToRender.map(createFacilityCard).join('');
+        }
+
+        function filterFacilities() {
+            const availabilityFilter = document.getElementById('availability-filter').value;
+            const compatibilityFilter = parseInt(document.getElementById('compatibility-filter').value);
+            
+            let filtered = facilities.filter(facility => {
+                if (availabilityFilter !== 'all' && facility.availability !== availabilityFilter) {
+                    return false;
+                }
+                if (compatibilityFilter > 0 && facility.compatibility < compatibilityFilter) {
+                    return false;
+                }
+                return true;
+            });
+
+            // Sort by compatibility score (highest first)
+            filtered.sort((a, b) => b.compatibility - a.compatibility);
+            
+            renderFacilities(filtered);
+        }
+
+        function initiateReferral(facilityId) {
+            const facility = facilities.find(f => f.id === facilityId);
+            alert(`Initiating referral to ${facility.name}...\n\nA referral form will be prepared with the patient's assessment data.`);
+        }
+
+        function viewDetails(facilityId) {
+            const facility = facilities.find(f => f.id === facilityId);
+            alert(`Contacting ${facility.name}\nPhone: ${facility.phone}\n\nContact details copied to clipboard.`);
+        }
+
+        function saveForLater(facilityId) {
+            const facility = facilities.find(f => f.id === facilityId);
+            const btn = event.target;
+            btn.innerHTML = '✅ Saved';
+            btn.style.background = '#10b981';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = '⭐ Save for Later';
+                btn.style.background = '#f8fafc';
+                btn.style.color = '#64748b';
+            }, 2000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderFacilities();
+            
+            // Add event listeners to filters
+            document.getElementById('availability-filter').addEventListener('change', filterFacilities);
+            document.getElementById('compatibility-filter').addEventListener('change', filterFacilities);
+            document.getElementById('distance-filter').addEventListener('change', filterFacilities);
+            document.getElementById('insurance-filter').addEventListener('change', filterFacilities);
+        });
+    </script>
+</body>
+</html>

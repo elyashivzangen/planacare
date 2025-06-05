@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Profile - Psychiatric Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #334155;
+        }
+
+        /* Patient Profile Card - Fixed Top Right */
+        .patient-profile {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            z-index: 1000;
+            min-width: 280px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-right: 16px;
+        }
+
+        .profile-info h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .profile-details {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 16px;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .profile-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Main Assessment Form */
+        .main-content {
+            margin-right: 320px;
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        .assessment-header {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .assessment-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .assessment-subtitle {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .doctor-info {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .doctor-info span {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        /* Form Sections */
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: #fafafa;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+            position: sticky;
+            bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        /* Success Message */
+        .success-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            z-index: 2000;
+            display: none;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 40px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-right: 0;
+                padding-top: 180px;
+            }
+            
+            .patient-profile {
+                position: fixed;
+                top: 0;
+                right: 0;
+                left: 0;
+                border-radius: 0;
+                border-radius: 0 0 16px 16px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 16px;
+                padding-top: 200px;
+            }
+            
+            .form-section {
+                padding: 24px 20px;
+            }
+            
+            .assessment-header {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Patient Profile Card - Fixed Top Right -->
+    <div class="patient-profile">
+        <div class="profile-header">
+            <div class="profile-avatar" id="patientInitials">JP</div>
+            <div class="profile-info">
+                <h2 id="patientName">John Doe</h2>
+                <p>Patient Profile</p>
+            </div>
+        </div>
+        <div class="profile-details">
+            <div class="profile-row">
+                <span class="profile-label">Patient ID</span>
+                <span class="profile-value" id="patientId">PAT-2025-001</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Age</span>
+                <span class="profile-value" id="patientAge">45</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Gender</span>
+                <span class="profile-value" id="patientGender">Male</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Status</span>
+                <span class="profile-value" style="color: #10b981;">Active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Assessment Form -->
+    <div class="main-content">
+        <div class="assessment-header">
+            <h1 class="assessment-title">Psychiatric Assessment</h1>
+            <p class="assessment-subtitle">Comprehensive evaluation and care planning form</p>
+            <div class="doctor-info">
+                <span>👨‍⚕️ Assessed by: Dr. [Psychiatrist Name] | Date: <span id="currentDate"></span></span>
+            </div>
+        </div>
+
+        <form id="assessmentForm">
+            <!-- Diagnosis Section -->
+            <div class="form-section">
+                <h2 class="section-title">Primary Diagnosis</h2>
+                <div class="form-group">
+                    <label for="psychiatric-diagnosis">Primary Psychiatric Diagnosis <span class="required">*</span></label>
+                    <textarea id="psychiatric-diagnosis" name="psychiatric-diagnosis" 
+                             placeholder="Enter primary psychiatric diagnosis (include DSM-5 code if available)" required></textarea>
+                </div>
+            </div>
+
+            <!-- Admission & Background -->
+            <div class="form-section">
+                <h2 class="section-title">Admission & Background</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="admission-type">Psychiatric Ward Admission</label>
+                        <select id="admission-type" name="admission-type">
+                            <option value="">Select admission type</option>
+                            <option value="closed-ward">Closed psychiatric ward</option>
+                            <option value="open-ward">Open psychiatric ward</option>
+                            <option value="no-admission">No psychiatric ward admission</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="arrival-mode">Mode of Arrival</label>
+                        <select id="arrival-mode" name="arrival-mode">
+                            <option value="">Select mode of arrival</option>
+                            <option value="independent">Independent/Self-referral</option>
+                            <option value="family">Brought by family</option>
+                            <option value="ems">Emergency Medical Services (EMS)</option>
+                            <option value="police">Police</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="involuntary-admission">Admission Status</label>
+                        <select id="involuntary-admission" name="involuntary-admission">
+                            <option value="">Select admission status</option>
+                            <option value="voluntary">Voluntary admission</option>
+                            <option value="involuntary">Involuntary admission</option>
+                            <option value="court-ordered">Court-ordered admission</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="functioning-level">Level of Functioning</label>
+                        <select id="functioning-level" name="functioning-level">
+                            <option value="">Select functioning level</option>
+                            <option value="independent">Fully independent</option>
+                            <option value="mostly-independent">Mostly independent with minimal support</option>
+                            <option value="moderate-support">Requires moderate support</option>
+                            <option value="high-support">Requires high level of support</option>
+                            <option value="dependent">Fully dependent</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="background-diagnoses">Additional Background Diagnoses</label>
+                    <textarea id="background-diagnoses" name="background-diagnoses" 
+                             placeholder="List any additional psychiatric or medical diagnoses"></textarea>
+                </div>
+            </div>
+
+            <!-- Treatment & Care -->
+            <div class="form-section">
+                <h2 class="section-title">Current Treatment & Care</h2>
+                <div class="form-group">
+                    <label for="medication-regimen">Current Medication Regimen</label>
+                    <textarea id="medication-regimen" name="medication-regimen" 
+                             placeholder="List current medications, dosages, and frequency"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="nursing-care">Nursing Care Needs</label>
+                    <textarea id="nursing-care" name="nursing-care" 
+                             placeholder="Describe any nursing care requirements"></textarea>
+                </div>
+            </div>
+
+            <!-- Living Situation & Support -->
+            <div class="form-section">
+                <h2 class="section-title">Living Situation & Support Systems</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="residence">Place of Residence</label>
+                        <select id="residence" name="residence">
+                            <option value="">Select place of residence</option>
+                            <option value="own-home">Own home</option>
+                            <option value="family-home">Family home</option>
+                            <option value="assisted-living">Assisted living facility</option>
+                            <option value="group-home">Group home</option>
+                            <option value="nursing-home">Nursing home</option>
+                            <option value="homeless">Homeless</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="demographic-sector">Demographic / Sector Affiliation</label>
+                    <textarea id="demographic-sector" name="demographic-sector" 
+                             placeholder="Describe demographic background or sector affiliation (cultural, religious, socioeconomic, etc.)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="support-systems">Support Systems / Emergency Contact / Legal Guardian</label>
+                    <textarea id="support-systems" name="support-systems" 
+                             placeholder="List support systems at home, emergency contacts, and legal guardian information"></textarea>
+                </div>
+            </div>
+
+            <!-- Care Planning -->
+            <div class="form-section">
+                <h2 class="section-title">Care Planning & History</h2>
+                <div class="form-group">
+                    <label for="care-recommendations">Recommendations for Continued Care</label>
+                    <textarea id="care-recommendations" name="care-recommendations" 
+                             placeholder="Include rehabilitation facility recommendations, suggested support services, follow-up care plans"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="rehab-history">History of Previous Rehabilitation Facility Placements</label>
+                    <textarea id="rehab-history" name="rehab-history" 
+                             placeholder="Describe any previous rehabilitation facility placements, dates, and outcomes"></textarea>
+                </div>
+            </div>
+        </form>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="saveDraft()">Save Draft</button>
+            <button type="button" class="btn btn-primary" onclick="submitAssessment()">Complete Assessment</button>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+        <div class="success-icon">✓</div>
+        <h3 style="margin-bottom: 8px;">Assessment Completed</h3>
+        <p style="color: #64748b;">Psychiatric assessment has been saved successfully</p>
+    </div>
+
+    <script>
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Function to update patient profile
+        function updatePatientProfile(name, id, age, gender) {
+            document.getElementById('patientName').textContent = name;
+            document.getElementById('patientId').textContent = id;
+            document.getElementById('patientAge').textContent = age;
+            document.getElementById('patientGender').textContent = gender;
+            
+            // Update initials
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('patientInitials').textContent = initials;
+        }
+
+        // Example: Update with actual patient data
+        // updatePatientProfile('Jane Smith', 'PAT-2025-042', '34', 'Female');
+
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('assessmentForm'));
+            const data = Object.fromEntries(formData);
+            
+            console.log('Draft saved:', data);
+            
+            // Show temporary notification
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Saved ✓';
+            btn.style.background = '#10b981';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#f8fafc';
+                btn.style.color = '#64748b';
+            }, 2000);
+        }
+
+        function submitAssessment() {
+            const form = document.getElementById('assessmentForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Validation
+            if (!data['psychiatric-diagnosis']) {
+                alert('Please fill in the primary psychiatric diagnosis (required field)');
+                document.getElementById('psychiatric-diagnosis').focus();
+                return;
+            }
+            
+            console.log('Assessment submitted:', data);
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Hide success message after 3 seconds and reset form
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+                form.reset();
+            }, 3000);
+        }
+
+        // Auto-save functionality (optional)
+        let autoSaveTimer;
+        const formInputs = document.querySelectorAll('#assessmentForm input, #assessmentForm select, #assessmentForm textarea');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    // Auto-save logic here
+                    console.log('Auto-saving...');
+                }, 5000); // Auto-save after 5 seconds of inactivity
+            });
+        });
+    </script>
+</body>
+</html>
