@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Download CIFAR-10
         run: |
-          curl -L --fail --retry 3 https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz -o cifar-10-python.tar.gz
+          curl -L --fail --retry 3 https://dataset.bj.bcebos.com/cifar/cifar-10-python.tar.gz -o cifar-10-python.tar.gz
           sha256sum cifar-10-python.tar.gz
       - name: Upload CIFAR-10
         uses: actions/upload-artifact@v4
